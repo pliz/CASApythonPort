@@ -15,7 +15,7 @@ def tfanalysis(x,awin,timestep,numfreq):
     wlen=awin.size
     x=np.reshape(x,-1,'F')
     awin=np.reshape(awin,-1,'F') #make inputs go column-wise
-    numtime=math.ceil((nsamp-wlen+1)/timestep)
+    numtime=np.int(math.ceil((nsamp-wlen+1)/timestep))
     tfmat=np.zeros((numfreq,numtime+1))+0j
     sind=None
     for i in range(0,numtime):
