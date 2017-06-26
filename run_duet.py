@@ -23,10 +23,10 @@ wlen=1024;
 timestep=512;
 numfreq=1024;
 
-
+loc = '/home/splis/dev/craft/r8/separation/'
 awin=np.hamming(wlen) #analysis window is a Hamming window Looks like Sine on [0,pi]
-x1=read('data/x1_reverb.wav')
-x2=read('data/x2_reverb.wav')
+x1=read(loc+'ch1_far.wav')
+x2=read(loc+'ch2_far.wav')
 
 fs=x1[0] # Obtain sampling rate
 x1=x1[1]
@@ -128,7 +128,7 @@ plt.show()
 #4) Determine how many peaks there are in the histogram.
 #5) Find the location of each peak. 
 
-numsources=5;
+numsources=2;
 
 # peak estimates provided in source code
 peakdelta=np.matrix([-2, -2, 0, 2, 2]);
