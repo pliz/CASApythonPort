@@ -10,16 +10,18 @@ import math
 #
 #X contains the reconstructed signal.
 
+
 def tfsynthesis(timefreqmat,swin,timestep,numfreq):
-	timefreqmat=np.asarray(timefreqmat)
-	swin=np.reshape(swin,-1,'F')
-	winlen=swin.shape[0]
-	(numfreq, numtime)=timefreqmat.shape
-	ind=np.fmod(np.array(range(0,winlen)),numfreq)
-	x=np.zeros(((numtime-1)*timestep+winlen))
-	for i in range(0,numtime):
-		temp=numfreq*np.real(ifft(timefreqmat[:,i]))
-		sind=((i)*timestep)
-                rind = range(sind,sind+winlen)
-                x[rind] = x[rind] + temp[ind]*swin
-	return x	
+    timefreqmat=np.asarray(timefreqmat)
+    swin=np.reshape(swin,-1,'F')
+    winlen=swin.shape[0]
+    (numfreq, numtime)=timefreqmat.shape
+    ind=np.fmod(np.array(range(0,winlen)),numfreq)
+    x=np.zeros(((numtime-1)*timestep+winlen))
+    for i in range(0,numtime):
+        temp=numfreq*np.real(ifft(timefreqmat[:,i]))
+        sind=((i)*timestep)
+        rind = range(sind,sind+winlen)
+        x[rind] = x[rind] + temp[ind]*swin
+
+    return x
