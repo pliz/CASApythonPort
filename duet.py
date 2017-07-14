@@ -28,6 +28,7 @@ def aspectrogram(x, fs=1, wlen=1024, step=512):
                                  nperseg=wlen,
                                  noverlap=step,
                                  nfft=2*1024-1,
+                                 return_onesided = False,
                                  mode='complex')
     return w, t, s
 
@@ -72,7 +73,7 @@ def maskAspectrogram(s, ratio = 0.1):
 
 def get_mask(tf1, tf2, ratio = 0.1):
     m1 = maskAspectrogram(tf1, ratio = ratio)
-    m2 = maskAspectrogram(tf2, ratio = ratio)    
+    m2 = maskAspectrogram(tf2, ratio = ratio)
     return m1 & m2
 
 
