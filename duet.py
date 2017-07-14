@@ -1,5 +1,3 @@
-# packages
-
 from scipy import signal
 from sklearn import preprocessing
 from numpy.ma import masked_array as maska
@@ -29,6 +27,7 @@ def aspectrogram(x, fs=1, wlen=1024, step=512):
                                  window=np.hamming(wlen),
                                  nperseg=wlen,
                                  noverlap=step,
+                                 nfft=2*1024-1,
                                  mode='complex')
     return w, t, s
 
@@ -36,7 +35,7 @@ def aspectrogram(x, fs=1, wlen=1024, step=512):
 def time2specgrams(x1, x2, fs=1, wlen=1024, step=512):
     w, t, tf1 = aspectrogram(x1, fs=fs, wlen=wlen, step=step)
     w, t, tf2 = aspectrogram(x2, fs=fs, wlen=wlen, step=step)
-    return w*2*np.pi, t, tf1, tf2 # converting to cyclic frequency
+    return w*2.*np.pi, t, tf1, tf2 # converting to cyclic frequency
 
 
 def alphadelta(tf1, tf2, w):
@@ -66,11 +65,15 @@ def gmm_clustering(points, num_clusters=2):
     return gmm.means_
 
 
+def maskAspectrogram(s, ratio = 0.1):
+    eps = ratio * s.max()
+    return np.abs(s) > eps
+
+
 def get_mask(tf1, tf2, ratio = 0.1):
-    t = np.absolute(tf1)*np.absolute(tf2)
-    eps = ratio * t.max()
-    amask = np.abs(t) > eps
-    return amask
+    m1 = maskAspectrogram(tf1, ratio = ratio)
+    m2 = maskAspectrogram(tf2, ratio = ratio)    
+    return m1 & m2
 
 
 def peaks_gmm(alpha, delta, num_clusters, amask, **kwargs):
