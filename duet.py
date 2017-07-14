@@ -1,20 +1,12 @@
-from scipy import signal
-from sklearn import preprocessing
+from scipy.signal import spectrogram
 from numpy.ma import masked_array as maska
 from scipy.ndimage.filters import gaussian_filter
 from scipy.sparse import csr_matrix
-import pylab as plt
-from mpl_toolkits.mplot3d import axes3d
-from sklearn.cluster import KMeans
-from ica import pca_whiten
 from sklearn.mixture import GaussianMixture
 from tfsynthesis import tfsynthesis
 
 import scipy
 import numpy as np
-import pandas as pd
-import seaborn as sb
-import math
 
 
 def smooth2d(mat2d, sigma=3, order=0):
