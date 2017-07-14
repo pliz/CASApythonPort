@@ -5,8 +5,6 @@ from numpy.ma import masked_array as maska
 from scipy.ndimage.filters import gaussian_filter
 from scipy.sparse import csr_matrix
 from sklearn.mixture import GaussianMixture
-from tfsynthesis import tfsynthesis
-
 
 
 def smooth2d(mat2d, sigma=3, order=0):
