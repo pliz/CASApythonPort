@@ -10,6 +10,7 @@ from mpl_toolkits.mplot3d import axes3d
 from sklearn.cluster import KMeans
 from ica import pca_whiten
 from sklearn.mixture import GaussianMixture
+from tfsynthesis import tfsynthesis
 
 import scipy
 import numpy as np
@@ -23,7 +24,6 @@ def smooth2d(mat2d, sigma=3, order=0):
 
 
 def aspectrogram(x, fs=1, wlen=1024, step=512):
-    if freq_bins < wlen: freq_bins = wlen
     w, t, s = signal.spectrogram(x,
                                  fs=fs,
                                  window=np.hamming(wlen),
@@ -103,7 +103,7 @@ def segmentation(peaks, tf1, tf2, w):
     for i in range(peaks.shape[0]):
         coef = peaks[i][0]*np.exp(-1j*peaks[i][1]*w)
         J.append(np.absolute(tf1*coef[:,None] - tf2)**2/(1+peaks[i][0]**2))
-    return np.argmax(np.asarray(J),axis=0)
+    return np.argmin(np.asarray(J),axis=0)
 
 
 def sources(tf1, tf2, peaks, mask, w):
@@ -111,7 +111,7 @@ def sources(tf1, tf2, peaks, mask, w):
     num_sources = np.unique(mask).shape[0]
     for i in range(num_sources):
         coef = peaks[i][0]*np.exp(1j*peaks[i][1]*w)
-        s.append((mask == i) * (tf1 + coef[:,None]*tf2)/(1+peaks[i][0]**2))
+        s.append((mask == i) * ((tf1 + coef[:,None]*tf2)/(1+peaks[i][0]**2)))
     return s
 
 
@@ -120,9 +120,8 @@ def duet(x1, x2, fs, num_sources=2, wlen=1024, step=512):
     peaks = get_a_d(tf1, tf2, w, 2)
     mask = segmentation(peaks, tf1, tf2, w)
     s = sources(tf1, tf2, peaks, mask, w)
-    s = [tfsynthesis(x, ) for x in s]
+    s = [tfsynthesis(x, np.sqrt(2)*np.hamming(wlen)/wlen, step, tf1.shape[0]) for x in s]
     return s
-
 
 
 def plot_hist(A, maxa=3, maxd=1, dbins=100, abins=100):
@@ -150,5 +149,3 @@ def buildhist(alpha, delta, tfweight,
                    shape=(abins, dbins)).todense()
     if smooth: A = smooth2d(A, smoothstd)
     return A
-
-
