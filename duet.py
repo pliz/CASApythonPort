@@ -60,13 +60,6 @@ def alphadelta(tf1, tf2, w):
     return alpha, delta
 
 
-def tfweights(tf1, tf2, w):
-    h1 = (np.absolute(tf1)*np.absolute(tf2))**p
-    h2 = np.absolute(w)**q
-    tfweight = h1*h2[:,None]
-    return tfweight
-
-
 def gmm_clustering(points, num_clusters=2):
     gmm = GaussianMixture(num_clusters, 'full')
     gmm.fit(points)
@@ -122,30 +115,3 @@ def duet(x1, x2, fs, num_sources=2, wlen=1024, step=512):
     s = sources(tf1, tf2, peaks, mask, w)
     s = [tfsynthesis(x, np.sqrt(2)*np.hamming(wlen)/wlen, step, tf1.shape[0]) for x in s]
     return s
-
-
-def plot_hist(A, maxa=3, maxd=1, dbins=100, abins=100):
-     fig = plt.figure()
-     ax = fig.add_subplot(111, projection='3d')
-     X=np.linspace(-maxd, maxd, dbins)
-     Y=np.linspace(-maxa, maxa, abins)
-     X, Y = np.meshgrid(X, Y)
-     ax.plot_wireframe(X,Y,A)
-     plt.show()
-def buildhist(alpha, delta, tfweight,
-              maxa=3, maxd=3,
-              abins=100, dbins=100,
-              smooth=True,
-              smoothstd=2.0):
-    # only consider time-freq points yielding estimates in bounds
-    amask = ~((np.absolute(alpha) < maxa) & (np.absolute(delta) < maxd))
-    alphavec = maska(alpha, mask=amask).T.compressed()
-    deltavec = maska(delta, mask=amask).T.compressed()
-    tfweight = maska(tfweight, mask=amask).T.compressed()
-    alphaind = np.around((abins-1)*(alphavec+maxa)/(2*maxa))
-    deltaind = np.around((dbins-1)*(deltavec+maxd)/(2*maxd))
-
-    A = csr_matrix((tfweight, (alphaind, deltaind)),
-                   shape=(abins, dbins)).todense()
-    if smooth: A = smooth2d(A, smoothstd)
-    return A
