@@ -1,12 +1,12 @@
+import numpy as np
 from scipy.signal import spectrogram
+from scipy.fftpack import ifft
 from numpy.ma import masked_array as maska
 from scipy.ndimage.filters import gaussian_filter
 from scipy.sparse import csr_matrix
 from sklearn.mixture import GaussianMixture
 from tfsynthesis import tfsynthesis
 
-import scipy
-import numpy as np
 
 
 def smooth2d(mat2d, sigma=3, order=0):
@@ -14,15 +14,28 @@ def smooth2d(mat2d, sigma=3, order=0):
 
 
 def aspectrogram(x, fs=1, wlen=1024, step=512):
-    w, t, s = signal.spectrogram(x,
-                                 fs=fs,
-                                 window=np.hamming(wlen),
-                                 nperseg=wlen,
-                                 noverlap=step,
-                                 nfft=2*1024-1,
-                                 return_onesided = False,
-                                 mode='complex')
+    w, t, s = spectrogram(x,
+                          fs=fs,
+                          window=np.hamming(wlen),
+                          nperseg=wlen,
+                          noverlap=step,
+                          nfft=2*1024-1,
+                          return_onesided = False,
+                          mode='complex')
     return w, t, s
+
+
+def spectrogram2time(s, swin, shift):
+        winlen=swin.shape[0]
+        (numfreq, numtime) = s.shape
+        ind=np.fmod(np.arange(0,winlen),s.shape[0])
+        x=np.zeros((numtime-1)*shift+winlen)
+        for i in range(0,numtime):
+                temp=numfreq*np.real(ifft(s[:,i]))
+                sind=i*shift
+                rind = range(sind,sind+winlen)
+                x[rind] = x[rind] + temp[ind]*swin
+        return x
 
 
 def time2specgrams(x1, x2, fs=1, wlen=1024, step=512):
@@ -109,5 +122,5 @@ def duet(x1, x2, fs, num_sources=2, wlen=1024, step=512):
     peaks = get_a_d(tf1, tf2, w, 2)
     mask = segmentation(peaks, tf1, tf2, w)
     s = sources(tf1, tf2, peaks, mask, w)
-    s = [tfsynthesis(x, np.sqrt(2)*np.hamming(wlen)/wlen, step, tf1.shape[0]) for x in s]
+    s = [spectrogram2time(x, np.sqrt(2)*np.hamming(wlen)/wlen, step) for x in s]
     return s
